@@ -44,18 +44,6 @@ for element in book_list:
     db_functions.add_book(book=book)
 print("Book table filled!")
 
-# Fill book genres table
-# Fill authors table
-series_genres = df['genre'] # column of interest
-list_genres = series_genres.str.split(pat="/").values.tolist() # convert to list (separated)
-flat_list_genress = [x2 for x1 in list_authors for x2 in x1] # list flatten
-array_genres_unique = pd.Series(flat_list_authors).unique()
-
-for element in genres_unique:
-    element = remove_extra_spaces(element)
-    genre = Genre (genreid=element)
-    db_functions.add_genre(genre=genre)
-print("Genre table filled!")
 
 ## Close connection to database
 db_functions.close()

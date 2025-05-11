@@ -30,6 +30,63 @@ def add_author(author): # needs an object that represents all of the information
         cursor.execute(sql_query, (author.author_name,)) # representa al objeto employee
         conn.commit()
 
+def get_author(author_id):
+    """
+    Retrieves an author from the Authors table by their ID.
+
+    Args:
+        author_id: The ID of the author to retrieve.
+
+    Returns:
+        An Author object if found, None otherwise.
+    """
+    sql_query = "SELECT AuthorID, AuthorName FROM Authors WHERE AuthorID = ?"
+    with closing(conn.cursor()) as cursor:
+        cursor.execute(sql_query, (author_id,))
+        row = cursor.fetchone()
+        if row:
+            return Author(authorid=row['AuthorID'], author_name=row['AuthorName'])
+        else:
+            return None
+
+def update_author(author):
+    """
+    Updates an existing author's information in the Authors table.
+
+    Args:
+        author: An Author object with the updated information.  The AuthorID is used to identify the author to update.
+    """
+    sql_query = "UPDATE Authors SET AuthorName = ? WHERE AuthorID = ?"
+    with closing(conn.cursor()) as cursor:
+        cursor.execute(sql_query, (author.author_name, author.authorid))
+        conn.commit()
+
+def delete_author(author_id):
+    """
+    Deletes an author from the Authors table by their ID.
+
+    Args:
+        author_id: The ID of the author to delete.
+    """
+    sql_query = "DELETE FROM Authors WHERE AuthorID = ?"
+    with closing(conn.cursor()) as cursor:
+        cursor.execute(sql_query, (author_id,))
+        conn.commit()
+
+def get_all_authors():
+    """
+    Retrieves all authors from the Authors table.
+
+    Returns:
+        A list of Author objects.
+    """
+    sql_query = "SELECT AuthorID, AuthorName FROM Authors"
+    with closing(conn.cursor()) as cursor:
+        cursor.execute(sql_query)
+        rows = cursor.fetchall()
+        return [Author(authorid=row['AuthorID'], author_name=row['AuthorName']) for row in rows]
+
+
 ### Book functions
 
 def add_book(book): # needs an object that represents all of the information of the author
