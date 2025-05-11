@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from objects import Author, Book, Genre
+from objects import Author, Book
 import db_functions
 from utils import remove_extra_spaces
 import os

@@ -16,8 +16,6 @@ class GoodreadsApp:
 
         self.create_books_tab()
         self.create_authors_tab()
-        self.create_book_genres_tab() # Añadimos la pestaña para BookGenres
-
         self.master.protocol("WM_DELETE_WINDOW", self.on_closing)
 
     def on_closing(self):
