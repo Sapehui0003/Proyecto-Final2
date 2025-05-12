@@ -44,7 +44,7 @@ def add_book(book): # needs an object that represents all of the information of 
 ### Genre functions
 
 def add_genre(genre): # needs an object that represents all of the information of the author
-    sql_query = '''INSERT OR IGNORE INTO Authors (AuthorName)
+    sql_query = '''INSERT OR IGNORE INTO Genres (GenreName)
     VALUES (?)'''
     with closing(conn.cursor()) as cursor:
         cursor.execute(sql_query, (genre.genre_name,)) # representa al objeto employee
