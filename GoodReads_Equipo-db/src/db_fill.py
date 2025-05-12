@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from objects import Author, Book
+from objects import Author, Book, Genre
 import db_functions
 from utils import remove_extra_spaces
 import os
@@ -43,6 +43,20 @@ for element in book_list:
                 num_pages=element[7])
     db_functions.add_book(book=book)
 print("Book table filled!")
+
+
+# Fill genres table
+series_genres = df['genres'] # column of interest
+series_genres = series_genres.dropna()   # Borramos posibles valores nan
+list_genres = series_genres.str.split(r"[;,]", regex=True).values.tolist() # convert to list (separated)
+flat_list_genres = [x2 for x1 in list_genres for x2 in x1] # list flatten
+array_genres_unique = pd.Series(flat_list_genres).unique()
+
+for element in array_genres_unique:
+    element = remove_extra_spaces(element)
+    genre = Genre(genre_name=element)
+    db_functions.add_genre(genre=genre)
+print("Genres table filled!")
 
 ## Close connection to database
 db_functions.close()
