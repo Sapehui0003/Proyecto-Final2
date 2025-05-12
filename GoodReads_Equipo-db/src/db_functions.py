@@ -40,3 +40,12 @@ def add_book(book): # needs an object that represents all of the information of 
                                    book.language, book.publication_year, book.publisher,
                                    book.num_pages)) # representa al objeto employee
         conn.commit()
+
+### Genre functions
+
+def add_genre(genre): # needs an object that represents all of the information of the author
+    sql_query = '''INSERT OR IGNORE INTO Authors (AuthorName)
+    VALUES (?)'''
+    with closing(conn.cursor()) as cursor:
+        cursor.execute(sql_query, (genre.genre_name,)) # representa al objeto employee
+        conn.commit()
