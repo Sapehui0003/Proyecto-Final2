@@ -259,7 +259,7 @@ class GoodreadsApp:
 
         ttk.Button(self.genres_tab, text="Agregar Género", command=self.add_genre).grid
 
-    
+   # SE CIERRA LA TABLA DE GENERO 
 if __name__ == '__main__':
     root = tk.Tk()
     app = GoodreadsApp(root)
