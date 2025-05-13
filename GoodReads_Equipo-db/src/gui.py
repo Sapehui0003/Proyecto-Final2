@@ -245,7 +245,7 @@ class GoodreadsApp:
 
     
     # ---------------------- TABLA GENRES ----------------------
-    def create_genres_tab(self):
+    def create_genres_tab(self): # <---- Método agregado
         self.genres_tab = ttk.Frame(self.notebook)
         self.notebook.add(self.genres_tab, text='Géneros')
 
@@ -257,9 +257,69 @@ class GoodreadsApp:
         self.genre_name_entry = ttk.Entry(self.genres_tab)
         self.genre_name_entry.grid(row=1, column=1, padx=5, pady=5, sticky='ew')
 
-        ttk.Button(self.genres_tab, text="Agregar Género", command=self.add_genre).grid
+        ttk.Button(self.genres_tab, text="Agregar Género", command=self.add_genre).grid(row=2, column=0, padx=5, pady=10, sticky='ew')
+        ttk.Button(self.genres_tab, text="Obtener Género", command=self.get_genre).grid(row=2, column=1, padx=5, pady=10, sticky='ew')
+        ttk.Button(self.genres_tab, text="Actualizar Género", command=self.update_genre).grid(row=3, column=0, padx=5, pady=10, sticky='ew')
+        ttk.Button(self.genres_tab, text="Eliminar Género", command=self.delete_genre).grid(row=3, column=1, padx=5, pady=10, sticky='ew')
 
-   # SE CIERRA LA TABLA DE GENERO 
+    def add_genre(self): # <---- Método agregado
+        name = self.genre_name_entry.get()
+        if name:
+            genre = Genre(genre_name=name)
+            db_functions.add_genre(genre=genre)
+            messagebox.showinfo("Éxito", f"Género '{name}' agregado.")
+            self.clear_genre_fields()
+        else:
+            messagebox.showerror("Error", "El nombre del género es obligatorio.")
+
+    def get_genre(self): # <---- Método agregado
+        genre_id_str = self.genre_id_entry.get()
+        if genre_id_str:
+            try:
+                genre_id = int(genre_id_str)
+                genre = db_functions.get_genre(genre_id)
+                if genre:
+                    self.genre_name_entry.delete(0, tk.END)
+                    self.genre_name_entry.insert(0, genre.genre_name)
+                else:
+                    messagebox.showinfo("Información", f"No se encontró ningún género con ID {genre_id}.")
+            except ValueError:
+                messagebox.showerror("Error", "El ID del género debe ser un número entero.")
+        else:
+            messagebox.showerror("Error", "Por favor, introduce el ID del género a buscar.")
+
+    def update_genre(self): # <---- Método agregado
+        genre_id_str = self.genre_id_entry.get()
+        name = self.genre_name_entry.get()
+        if genre_id_str and name:
+            try:
+                genre_id = int(genre_id_str)
+                genre = Genre(genreid=genre_id, genre_name=name)
+                db_functions.update_genre(genre=genre)
+                messagebox.showinfo("Éxito", f"Género con ID {genre_id} actualizado.")
+                self.clear_genre_fields()
+            except ValueError:
+                messagebox.showerror("Error", "El ID del género debe ser un número entero.")
+        else:
+            messagebox.showerror("Error", "ID del género y nombre son obligatorios.")
+
+    def delete_genre(self): # <---- Método agregado
+        genre_id_str = self.genre_id_entry.get()
+        if genre_id_str:
+            try:
+                genre_id = int(genre_id_str)
+                if messagebox.askyesno("Confirmar", f"¿Estás seguro de que quieres eliminar el género con ID {genre_id}?"):
+                    db_functions.delete_genre(genre_id)
+                    messagebox.showinfo("Éxito", f"Género con ID {genre_id} eliminado.")
+                    self.clear_genre_fields()
+            except ValueError:
+                messagebox.showerror("Error", "El ID del género debe ser un número entero.")
+        else:
+            messagebox.showerror("Error", "Por favor, introduce el ID del género a eliminar.")
+
+    def clear_genre_fields(self): # <---- Método agregado
+        self.genre_id_entry.delete(0, tk.END)
+        self.genre_name_entry.delete(0, tk.END)
 if __name__ == '__main__':
     root = tk.Tk()
     app = GoodreadsApp(root)
