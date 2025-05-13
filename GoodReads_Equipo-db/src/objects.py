@@ -22,3 +22,8 @@ class Genre:
     def __init__(self, genreid=0, genre_name=None):
         self.genreid = genreid
         self.genre_name = genre_name
+
+class Author_ID_Book_ID:
+    def __init__(self, bookid=0,authorid=0):
+        self.bookid = bookid
+        self.authorid = authorid

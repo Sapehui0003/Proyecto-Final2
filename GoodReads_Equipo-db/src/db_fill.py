@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np
-from objects import Author, Book, Genre
+from objects import Author, Book, Genre,Author_ID_Book_ID
 import db_functions
 from utils import remove_extra_spaces
 import os
@@ -57,6 +57,49 @@ for element in array_genres_unique:
     genre = Genre(genre_name=element)
     db_functions.add_genre(genre=genre)
 print("Genres table filled!")
+
+#Fill books_authors table
+#Take author names duplicated
+series_authors = df['Author'] 
+list_authors = series_authors.str.split(pat="/").values.tolist() # convert to list (separated)
+list_id_books = df['Book Id']
+new_list_id_books=[] #Lista final
+iD_author_unique=[]
+iD_author=[] #Lista final
+cc=0
+
+#Create list books for each author
+for book in list_id_books:
+    qty_list_a = len(list_authors[cc])
+    for i in range(qty_list_a):
+        new_list_id_books.append(book)
+    cc=cc+1
+
+flat_list_authors = [x2 for x1 in list_authors for x2 in x1] # list flatten
+array_authors_unique = pd.Series(flat_list_authors).unique()
+
+cc=1
+
+#Create list of authors total
+for iD in array_authors_unique:
+    iD_author_unique.append(cc)
+    cc=cc+1
+
+
+for author in flat_list_authors:
+    cc=0
+    for author_unique in array_authors_unique:
+        if author == author_unique:
+            iD_author.append(iD_author_unique[cc])
+        cc=cc+1
+
+lists=zip(new_list_id_books,iD_author)
+for element in lists:
+    ids = Author_ID_Book_ID (bookid=element[0], authorid=element[1])
+    db_functions.add_ids(ids=ids)
+
+
+print("Book Authors table filled!")
 
 ## Close connection to database
 db_functions.close()
