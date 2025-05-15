@@ -27,3 +27,8 @@ class Author_ID_Book_ID:
     def __init__(self, bookid=0,authorid=0):
         self.bookid = bookid
         self.authorid = authorid
+
+class Genre_ID_Book_ID:
+    def __init__(self, bookid=0,genreid=0):
+        self.bookid = bookid
+        self.genreid = genreid

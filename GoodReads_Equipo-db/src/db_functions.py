@@ -2,7 +2,7 @@
 
 import sqlite3 as sql
 from contextlib import closing
-from objects import Author, Book,Author_ID_Book_ID
+from objects import Author, Book,Author_ID_Book_ID,Genre,Genre_ID_Book_ID
 
 # Variable global que representa el string de conexion
 conn = None
@@ -231,4 +231,13 @@ def add_ids(ids): # needs an object that represents all of the information of th
     VALUES (?,?)'''
     with closing(conn.cursor()) as cursor:
         cursor.execute(sql_query, (ids.bookid,ids.authorid)) # representa al objeto employee
+        conn.commit()
+
+
+### Genre Book IDs functions
+def add_idsgb(idsgb): # needs an object that represents all of the information of the author
+    sql_query = '''INSERT OR IGNORE INTO BookGenres (BookID, GenreID)
+    VALUES (?,?)'''
+    with closing(conn.cursor()) as cursor:
+        cursor.execute(sql_query, (idsgb.bookid,idsgb.genreid)) # representa al objeto employee
         conn.commit()
