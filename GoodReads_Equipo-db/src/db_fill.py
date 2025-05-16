@@ -152,6 +152,7 @@ for element in lists:
 
 print("Book ID Genre ID table filled!")
 
+#Fill reviews table
 
 book_ids_in_db = set(df["Book Id"].astype(int).unique())
 

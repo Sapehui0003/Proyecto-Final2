@@ -17,6 +17,7 @@ class GoodreadsApp:
         self.create_books_tab()
         self.create_authors_tab()
         self.create_genres_tab()
+        self.create_reviews_tab()
         self.master.protocol("WM_DELETE_WINDOW", self.on_closing)
 
     def on_closing(self):
@@ -320,6 +321,160 @@ class GoodreadsApp:
     def clear_genre_fields(self): # <---- Método agregado
         self.genre_id_entry.delete(0, tk.END)
         self.genre_name_entry.delete(0, tk.END)
+
+    # ---------------------- TABLA REVIEWS ----------------------
+    def create_reviews_tab(self):
+        self.reviews_tab = ttk.Frame(self.notebook)
+        self.notebook.add(self.reviews_tab, text='Reseñas')
+
+        # Campos para agregar/actualizar reseña
+        ttk.Label(self.reviews_tab, text="Review ID:").grid(row=0, column=0, padx=5, pady=5, sticky='w')
+        self.review_id_entry = ttk.Entry(self.reviews_tab)
+        self.review_id_entry.grid(row=0, column=1, padx=5, pady=5, sticky='ew')
+
+        ttk.Label(self.reviews_tab, text="User ID:").grid(row=1, column=0, padx=5, pady=5, sticky='w')
+        self.user_id_entry = ttk.Entry(self.reviews_tab)
+        self.user_id_entry.grid(row=1, column=1, padx=5, pady=5, sticky='ew')
+
+        ttk.Label(self.reviews_tab, text="Book ID:").grid(row=2, column=0, padx=5, pady=5, sticky='w')
+        self.book_id_entry_review = ttk.Entry(self.reviews_tab)  # Changed variable name to avoid conflict
+        self.book_id_entry_review.grid(row=2, column=1, padx=5, pady=5, sticky='ew')
+
+        ttk.Label(self.reviews_tab, text="Rating:").grid(row=3, column=0, padx=5, pady=5, sticky='w')
+        self.rating_entry = ttk.Entry(self.reviews_tab)
+        self.rating_entry.grid(row=3, column=1, padx=5, pady=5, sticky='ew')
+
+        ttk.Label(self.reviews_tab, text="Review Text:").grid(row=4, column=0, padx=5, pady=5, sticky='w')
+        self.review_text_entry = ttk.Entry(self.reviews_tab)
+        self.review_text_entry.grid(row=4, column=1, padx=5, pady=5, sticky='ew')
+
+        ttk.Label(self.reviews_tab, text="Review Date:").grid(row=5, column=0, padx=5, pady=5, sticky='w')
+        self.review_date_entry = ttk.Entry(self.reviews_tab)
+        self.review_date_entry.grid(row=5, column=1, padx=5, pady=5, sticky='ew')
+
+        # Botones para operaciones de reseñas
+        ttk.Button(self.reviews_tab, text="Agregar Reseña", command=self.add_review).grid(row=6, column=0, padx=5, pady=10, sticky='ew')
+        ttk.Button(self.reviews_tab, text="Obtener Reseña", command=self.get_review).grid(row=6, column=1, padx=5, pady=10, sticky='ew')
+        ttk.Button(self.reviews_tab, text="Actualizar Reseña", command=self.update_review).grid(row=7, column=0, padx=5, pady=10, sticky='ew')
+        ttk.Button(self.reviews_tab, text="Eliminar Reseña", command=self.delete_review).grid(row=7, column=1, padx=5, pady=10, sticky='ew')
+        ttk.Button(self.reviews_tab, text="Obtener Todas las Reseñas", command=self.get_all_reviews).grid(row=8, column=0, padx=5, pady=10, sticky='ew')
+
+    def add_review(self):
+        review_id = self.review_id_entry.get()
+        user_id = self.user_id_entry.get()
+        book_id_str = self.book_id_entry_review.get() # Changed variable name
+        rating_str = self.rating_entry.get()
+        review_text = self.review_text_entry.get()
+        review_date = self.review_date_entry.get()
+
+        if review_id and user_id and book_id_str and rating_str:
+            try:
+                book_id = int(book_id_str)
+                rating = int(rating_str)
+                if 0 <= rating <= 5:
+                    review = Review(
+                        reviewid=review_id,
+                        userid=user_id,
+                        bookid=book_id,
+                        rating=rating,
+                        reviewtext=review_text,
+                        reviewdate=review_date
+                    )
+                    db_functions.add_review(review=review)
+                    messagebox.showinfo("Éxito", f"Reseña con ID '{review_id}' agregada.")
+                    self.clear_review_fields()
+                else:
+                    messagebox.showerror("Error", "La calificación (rating) debe estar entre 0 y 5.")
+            except ValueError:
+                messagebox.showerror("Error", "El Book ID y la calificación (rating) deben ser números enteros.")
+        else:
+            messagebox.showerror("Error", "Review ID, User ID, Book ID y calificación son obligatorios.")
+
+    def get_review(self):
+        review_id = self.review_id_entry.get()
+        if review_id:
+            review = db_functions.get_review(review_id) # Assuming you have this function in db_functions
+            if review:
+                self.user_id_entry.delete(0, tk.END)
+                self.user_id_entry.insert(0, review.userid)
+                self.book_id_entry_review.delete(0, tk.END) # Changed variable name
+                self.book_id_entry_review.insert(0, review.bookid)
+                self.rating_entry.delete(0, tk.END)
+                self.rating_entry.insert(0, review.rating)
+                self.review_text_entry.delete(0, tk.END)
+                self.review_text_entry.insert(0, review.reviewtext)
+                self.review_date_entry.delete(0, tk.END)
+                self.review_date_entry.insert(0, review.reviewdate)
+            else:
+                messagebox.showinfo("Información", f"No se encontró ninguna reseña con ID {review_id}.")
+        else:
+            messagebox.showerror("Error", "Por favor, introduce el ID de la reseña a buscar.")
+
+    def update_review(self):
+        review_id = self.review_id_entry.get()
+        user_id = self.user_id_entry.get()
+        book_id_str = self.book_id_entry_review.get()  # Changed variable name
+        rating_str = self.rating_entry.get()
+        review_text = self.review_text_entry.get()
+        review_date = self.review_date_entry.get()
+        
+        if review_id and user_id and book_id_str: #made book_id_str a requirement
+            try:
+                book_id = int(book_id_str)
+                rating = int(rating_str) if rating_str else None #make rating optional
+                
+                if rating is None or (0 <= rating <= 5): #check if rating is None
+                    db_functions.update_review(review_id, rating, review_text, review_date)
+                    messagebox.showinfo("Éxito", f"Reseña con ID {review_id} actualizada.")
+                    self.clear_review_fields()
+                else:
+                    messagebox.showerror("Error", "La calificación debe estar entre 0 y 5.")
+            except ValueError:
+                messagebox.showerror("Error", "Book ID y la calificación deben ser números enteros.")
+        else:
+            messagebox.showerror("Error", "Review ID, User ID and Book ID son obligatorios.")
+
+    def delete_review(self):
+        review_id = self.review_id_entry.get()
+        if review_id:
+            if messagebox.askyesno("Confirmar", f"¿Estás seguro de que quieres eliminar la reseña con ID {review_id}?"):
+                db_functions.delete_review(review_id)
+                messagebox.showinfo("Éxito", f"Reseña con ID {review_id} eliminada.")
+                self.clear_review_fields()
+        else:
+            messagebox.showerror("Error", "Por favor, introduce el ID de la reseña a eliminar.")
+
+    def clear_review_fields(self):
+        self.review_id_entry.delete(0, tk.END)
+        self.user_id_entry.delete(0, tk.END)
+        self.book_id_entry_review.delete(0, tk.END) # Changed variable name
+        self.rating_entry.delete(0, tk.END)
+        self.review_text_entry.delete(0, tk.END)
+        self.review_date_entry.delete(0, tk.END)
+        
+    def get_all_reviews(self):
+        reviews = db_functions.get_all_reviews()
+        if reviews:
+            # Create a new window to display the reviews
+            reviews_window = tk.Toplevel(self.master)
+            reviews_window.title("Todas las Reseñas")
+
+            # Create a treeview widget to display the reviews in a table format
+            tree = ttk.Treeview(reviews_window, cols=("Review ID", "User ID", "Book ID", "Rating", "Review Text", "Review Date"), show="headings")
+            tree.heading("Review ID", text="Review ID")
+            tree.heading("User ID", text="User ID")
+            tree.heading("Book ID", text="Book ID")
+            tree.heading("Rating", text="Rating")
+            tree.heading("Review Text", text="Review Text")
+            tree.heading("Review Date", text="Review Date")
+            tree.pack(expand=True, fill='both')
+
+            # Insert the reviews into the treeview
+            for review in reviews:
+                tree.insert("", tk.END, values=(review["reviewid"], review["userid"], review["bookid"], review["rating"], review["reviewtext"], review["reviewdate"]))
+        else:
+            messagebox.showinfo("Información", "No hay reseñas para mostrar.")
+
 if __name__ == '__main__':
     root = tk.Tk()
     app = GoodreadsApp(root)
