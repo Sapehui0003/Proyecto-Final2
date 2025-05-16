@@ -245,7 +245,7 @@ class GoodreadsApp:
 
     
     # ---------------------- TABLA GENRES ----------------------
-    def create_genres_tab(self): # <---- Método agregado
+    def create_genres_tab(self):
         self.genres_tab = ttk.Frame(self.notebook)
         self.notebook.add(self.genres_tab, text='Géneros')
 
