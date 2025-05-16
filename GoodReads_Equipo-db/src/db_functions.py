@@ -90,14 +90,30 @@ def get_all_authors():
 
 ### Book functions
 
-def add_book(book): # needs an object that represents all of the information of the author
-    sql_query = '''INSERT OR IGNORE INTO Books (BookID, Title, ISBN, ISBN13, Language, PublicationYear, Publisher, NumPages)
-    VALUES (?,?,?,?,?,?,?,?)'''
-    with closing(conn.cursor()) as cursor:
-        cursor.execute(sql_query, (book.bookid, book.title, book.isbn, book.isbn13,
-                                   book.language, book.publication_year, book.publisher,
-                                   book.num_pages)) # representa al objeto employee
+#def add_book(book): # needs an object that represents all of the information of the author
+ #   sql_query = '''INSERT OR IGNORE INTO Books (BookID, Title, ISBN, ISBN13, Language, PublicationYear, Publisher, NumPages)
+  #  VALUES (?,?,?,?,?,?,?,?)'''
+   # with closing(conn.cursor()) as cursor:
+    #    cursor.execute(sql_query, (book.bookid, book.title, book.isbn, book.isbn13,
+     #                              book.language, book.publication_year, book.publisher,
+      #                             book.num_pages)) # representa al objeto employee
+       # conn.commit()
+def add_book(book):
+    """
+    Adds a new book to the database and returns the generated book ID.
+    """
+    sql_query = """
+    INSERT INTO Books (Title, ISBN, ISBN13, Language, PublicationYear, Publisher, NumPages)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
+    """
+    with conn:
+        cursor = conn.cursor()
+        cursor.execute(sql_query, (book.title, book.isbn, book.isbn13, book.language,
+                                   book.publication_year, book.publisher, book.num_pages))
+        # Get the last inserted row ID, which is the new book's ID
+        book_id = cursor.lastrowid
         conn.commit()
+    return book_id
 
 def get_book(book_id):
     """
