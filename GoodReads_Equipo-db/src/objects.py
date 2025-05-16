@@ -27,3 +27,16 @@ class Author_ID_Book_ID:
     def __init__(self, bookid=0,authorid=0):
         self.bookid = bookid
         self.authorid = authorid
+
+class Genre_ID_Book_ID:
+    def __init__(self, bookid=0,genreid=0):
+        self.bookid = bookid
+        self.genreid = genreid
+class Review:
+    def __init__(self, reviewid, userid, bookid, rating, reviewtext, reviewdate):
+        self.reviewid = reviewid
+        self.userid = userid
+        self.bookid = bookid
+        self.rating = rating
+        self.reviewtext = reviewtext
+        self.reviewdate = reviewdate

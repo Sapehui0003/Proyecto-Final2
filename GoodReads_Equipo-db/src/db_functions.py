@@ -2,7 +2,7 @@
 
 import sqlite3 as sql
 from contextlib import closing
-from objects import Author, Book,Author_ID_Book_ID
+from objects import Author, Book,Author_ID_Book_ID,Genre,Genre_ID_Book_ID, Review
 
 # Variable global que representa el string de conexion
 conn = None
@@ -232,3 +232,102 @@ def add_ids(ids): # needs an object that represents all of the information of th
     with closing(conn.cursor()) as cursor:
         cursor.execute(sql_query, (ids.bookid,ids.authorid)) # representa al objeto employee
         conn.commit()
+
+
+### Genre Book IDs functions
+def add_idsgb(idsgb): # needs an object that represents all of the information of the author
+    sql_query = '''INSERT OR IGNORE INTO BookGenres (BookID, GenreID)
+    VALUES (?,?)'''
+    with closing(conn.cursor()) as cursor:
+        cursor.execute(sql_query, (idsgb.bookid,idsgb.genreid)) # representa al objeto employee
+        conn.commit()
+# Reviews
+def add_review(review: Review):
+    sql_query = '''
+    INSERT OR IGNORE INTO Reviews (reviewid, userid, bookid, rating, reviewtext, reviewdate)
+    VALUES (?, ?, ?, ?, ?, ?)
+    '''
+    with closing(conn.cursor()) as cursor:
+        cursor.execute(sql_query, (
+            review.reviewid,
+            review.userid,
+            review.bookid,
+            review.rating,
+            review.reviewtext,
+            review.reviewdate
+        ))
+        conn.commit()
+
+def get_reviews():
+    sql_query = "SELECT * FROM Reviews"
+    with closing(conn.cursor()) as cursor:
+        cursor.execute(sql_query)
+        return cursor.fetchall()
+    
+def delete_review(reviewid):
+    sql_query = "DELETE FROM Reviews WHERE reviewid = ?"
+    with closing(conn.cursor()) as cursor:
+        cursor.execute(sql_query, (reviewid,))
+        conn.commit()
+
+def update_review(reviewid, rating=None, reviewtext=None, reviewdate=None):
+    """
+    Actualiza la reseña especificada por reviewid.
+    Los parámetros rating, reviewtext y reviewdate son opcionales; si no se proporcionan, no se actualizarán.
+    """
+    sql_query = "UPDATE Reviews SET "
+    parameters = []
+
+    if rating is not None:
+        sql_query += "Rating = ?, "
+        parameters.append(rating)
+
+    if reviewtext is not None:
+        sql_query += "ReviewText = ?, "
+        parameters.append(reviewtext)
+
+    if reviewdate is not None:
+        sql_query += "ReviewDate = ?, "
+        parameters.append(reviewdate)
+
+    # Eliminar la última coma y espacio
+    sql_query = sql_query.rstrip(", ")
+
+    # Añadir la condición de actualización para el reviewid
+    sql_query += " WHERE ReviewID = ?"
+    parameters.append(reviewid)
+
+    with closing(conn.cursor()) as cursor:
+        cursor.execute(sql_query, tuple(parameters))
+        conn.commit()
+        
+def add_user(user_id: str):
+    sql_query = '''
+    INSERT OR IGNORE INTO Users (UserID)
+    VALUES (?)
+    '''
+    with closing(conn.cursor()) as cursor:
+        cursor.execute(sql_query, (user_id,))
+        conn.commit()
+
+def get_all_reviews():
+    """
+    Devuelve una lista con todas las reseñas existentes en la tabla Reviews.
+    Cada elemento de la lista es un diccionario con las columnas: 
+    reviewid, userid, bookid, rating, reviewtext, reviewdate.
+    """
+    sql_query = "SELECT * FROM Reviews"
+    with closing(conn.cursor()) as cursor:
+        cursor.execute(sql_query)
+        rows = cursor.fetchall()
+        reviews = []
+        for row in rows:
+            reviews.append({
+                "reviewid": row["ReviewID"],
+                "userid": row["UserID"],
+                "bookid": row["BookID"],
+                "rating": row["Rating"],
+                "reviewtext": row["ReviewText"],
+                "reviewdate": row["ReviewDate"]
+            })
+        return reviews
