@@ -76,23 +76,25 @@ def main():
                                         Location TEXT
                                     ); """
     
-    sql_create_ratings_table = """ CREATE TABLE IF NOT EXISTS Ratings (
-                                        UserID INTEGER,
-                                        BookID INTEGER,
-                                        Rating INTEGER CHECK (Rating >= 1 AND Rating <= 5),
-                                        PRIMARY KEY (UserID, BookID),
-                                        FOREIGN KEY (UserID) REFERENCES Users(UserID),
-                                        FOREIGN KEY (BookID) REFERENCES Books(BookID)
-                                    ); """
+    # sql_create_ratings_table = """ CREATE TABLE IF NOT EXISTS Ratings (
+    #                                     UserID INTEGER,
+    #                                     BookID INTEGER,
+    #                                     Rating INTEGER CHECK (Rating >= 1 AND Rating <= 5),
+    #                                     PRIMARY KEY (UserID, BookID),
+    #                                     FOREIGN KEY (UserID) REFERENCES Users(UserID),
+    #                                     FOREIGN KEY (BookID) REFERENCES Books(BookID)
+    #                                 ); """
     
-    sql_create_reviews_table = """ CREATE TABLE IF NOT EXISTS Reviews (
-                                        UserID INTEGER,
+    sql_create_reviews_table = """CREATE TABLE IF NOT EXISTS Reviews (
+                                        ReviewID TEXT PRIMARY KEY,
+                                        UserID TEXT,
                                         BookID INTEGER,
-                                        Rating INTEGER CHECK (Rating >= 1 AND Rating <= 5),
-                                        PRIMARY KEY (UserID, BookID),
-                                        FOREIGN KEY (UserID) REFERENCES Users(UserID),
-                                        FOREIGN KEY (BookID) REFERENCES Books(BookID)
-                                    ); """
+                                        Rating INTEGER CHECK (Rating >= 0 AND Rating <= 5),
+                                        ReviewText TEXT,
+                                        ReviewDate TEXT,
+                                        FOREIGN KEY(UserID) REFERENCES Users(UserID),
+                                        FOREIGN KEY(BookID) REFERENCES Books(BookID)
+                                    );"""
 
     # create a database connection
     conn = create_connection(database)
@@ -118,7 +120,7 @@ def main():
         create_table(conn, sql_create_users_table)
        
         # create ratings table
-        create_table(conn, sql_create_ratings_table)
+        #create_table(conn, sql_create_ratings_table)
         
         # create reviews table
         create_table(conn, sql_create_reviews_table)

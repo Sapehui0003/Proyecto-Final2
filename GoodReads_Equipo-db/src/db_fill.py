@@ -1,12 +1,14 @@
 import pandas as pd
 import numpy as np
-from objects import Author, Book, Genre,Author_ID_Book_ID,Genre_ID_Book_ID
+from objects import Author, Book, Genre,Author_ID_Book_ID,Genre_ID_Book_ID,Review
 import db_functions
+from db_functions import add_review
 from utils import remove_extra_spaces
 import os
 
 ## Data import
 df = pd.read_csv("../data/Goodreads_books_with_genres.csv")
+df_reviews= pd.read_csv("../data/goodreads_train.csv")
 df = df.drop(axis=0, index=8180) # parche
 df = df.drop(axis=0, index=11098) # parche
 df['publication_date'] = pd.to_datetime(df['publication_date'], format='%m/%d/%Y')
@@ -75,6 +77,9 @@ for book in list_id_books:
     for i in range(qty_list_a):
         new_list_id_books.append(book)
     cc=cc+1
+
+print("Book Authors table filled!")
+
 
 #flat_list_authors = [x2 for x1 in list_authors for x2 in x1] # list flatten
 #array_authors_unique = pd.Series(flat_list_authors).unique()
@@ -145,7 +150,25 @@ for element in lists:
     db_functions.add_idsgb(idsgb=idsgb)
 
 
-print("Book ID Generere ID table filled!")
+print("Book ID Genre ID table filled!")
 
-## Close connection to database
-db_functions.close()
+
+book_ids_in_db = set(df["Book Id"].astype(int).unique())
+
+for _, row in df_reviews.iterrows():
+    if pd.isna(row["review_id"]) or pd.isna(row["user_id"]) or pd.isna(row["book_id"]) or pd.isna(row["rating"]):
+        continue
+
+    review = Review(
+        reviewid=str(row["review_id"]),
+        userid=str(row["user_id"]),
+        bookid=int(float(row["book_id"])),
+        rating=int(float(row["rating"])),
+        reviewtext=str(row["review_text"]) if pd.notna(row["review_text"]) else "",
+        reviewdate=str(row["date_added"]) if pd.notna(row["date_added"]) else None
+    )
+
+    if review.bookid in book_ids_in_db:
+        db_functions.add_review(review)
+
+print("Reviews table filled!")
